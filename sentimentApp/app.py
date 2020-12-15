@@ -33,7 +33,7 @@ Functions to implement:
 
 
 analyzer = SentimentIntensityAnalyzer()
-def gNews(topic, startDate, endDate, pages = 1):
+def gNewsTest(topic, startDate, endDate, pages = 1):
     output = []
     googlenews = GoogleNews(lang='en',start=startDate,end=endDate,encode='utf-8')
     print(f"searching the topic '{topic}' on google...")
@@ -60,9 +60,6 @@ def gNews(topic, startDate, endDate, pages = 1):
     vaderAdjustedLength = 0
 
     print("output length:", outputLength)
-    #print (output[1]["desc"])
-    #print (len(output[1]["desc"]))
-    #print(googlenews.get_texts())
     for row in output:
         #print(row["desc"])
         opinion = TextBlob(row["title"]).sentiment
@@ -103,5 +100,5 @@ def gNews(topic, startDate, endDate, pages = 1):
     print(f"\tAdjusted mean vader polarity: {round(meanAdjustedVaderPolarity,3)}")
     googlenews.clear()
 
-gNews("AMD","11/1/2020","12/1/2020",5)
-#print(TextBlob("PHOTOS: Trump Supporters Rally In Washington To Oppose 2020 Election Results").sentiment.polarity)
+# gNewsTest("AMD","11/1/2020","12/1/2020",5)
+
