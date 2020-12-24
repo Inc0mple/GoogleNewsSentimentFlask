@@ -1,7 +1,160 @@
-{% extends "layout.html" %}
-{% block title %}
-Home
-{% endblock %}
-{% block content %}
-<p>Home page for the Visual Studio Code Flask tutorial.</p>
-{% endblock %}
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+  <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://cdn.socket.io/socket.io-3.0.1.min.js"></script>
+    <script type="text/javascript" charset="utf-8">
+      var socket = io()
+      socket.on('connect', function() {
+        console.log('connected');
+      });
+      socket.on('message', function(data) {
+        console.log(data);
+      });
+    </script>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>GoogleNews Sentiment Analysis</title>
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='sentiment.css')}}" />
+  </head>
+  <body>
+    <!--[if lt IE 7]>
+      <p class="browsehappy">
+        You are using an <strong>outdated</strong> browser. Please
+        <a href="#">upgrade your browser</a> to improve your experience.
+      </p>
+    <![endif]-->
+    <div id="app" onload="updateRunStats()">
+      <div id="mainTitle">GoogleNews Sentiment Analysis with Vader</div>
+      <div id="container">
+        <div id="inputCell" class="cell">
+          <div id="inputTitle">Input</div>
+          <form action="/analyse/" id="inputForm" method="post" onchange="updateRunStats()" onsubmit="return validateForm()">
+            <div id="fromLine">
+              <label for="fromMonthInput">From:</label>
+              <input type="month" id="fromMonthInput" name="fromMonthInput"
+              min="2011-01" value="2020-11">
+            </div>
+            <div id="toLine">
+              <label for="toMonthInput">To:</label>
+              <input type="month" id="toMonthInput" name="toMonthInput"
+              min="2011-01" value="2020-12">
+            </div>
+            <div>
+              <label for="topicsInput">Topics:</label>
+              <input type="text" placeholder="add topic" name="topicsInput" id="topicsInput">
+              <button id="addTopicButton" type="button" onclick="addTopic()">Add</button>
+            </div>
+            <input type="text" name="hiddenTopicsInput" id="hiddenTopicsInput" value="">
+            <div id="topicsDisplay">
+              Topics:
+            </div>
+            <input type="submit">
+            <input type="reset" onclick="resetTopics()">
+          </form>
+        </div>
+        <div id="statsCell" class="cell">
+          <div id="statsTitle">Stats</div>
+          <div id="runStatsContainer">
+            <p id="numberOfTopics">Number of Topics: 0</p>
+            <p id="numberOfMonth">Number of Months: 1</p>
+            <p id="estimatedTime">Estimated Time: 0 seconds</p>
+          </div>
+          <div id="topicStatsContainer">
+            topicStatsContainer Placeholder
+          </div>
+            
+        </div>
+        <div id="logCell" class="cell">
+          <div id="logTitle">Server Logs</div>
+          <div id="logContainer">
+            >log 1
+            >log 2
+          </div>
+        </div>
+        <div id="graphCell" class="cell">
+          <div id="graphTitle">Ouput Graph</div>
+          <div id="graphContainer">
+            graph container here
+          </div>
+        </div>
+          
+      </div>
+    </div>
+    <script>
+      let addTopicButton = document.getElementById('addTopicButton');
+      let hiddenTopicsInput = document.getElementById('hiddenTopicsInput');
+      let topicsInput = document.getElementById('topicsInput');
+      let topicsDisplay = document.getElementById('topicsDisplay');
+
+      let numberOfTopics = document.getElementById('numberOfTopics');
+      let numberOfMonth = document.getElementById('numberOfMonth');
+      let estimatedTime = document.getElementById('estimatedTime');
+
+      let fromDate = document.getElementById('fromMonthInput');
+      let toDate = document.getElementById('toMonthInput');
+      
+      $("#inputForm").submit(function(e) {
+
+      e.preventDefault(); // avoid to execute the actual submit of the form.
+
+      var form = $(this);
+      var url = form.attr('action');
+
+      $.ajax({
+            type: "POST",
+            url: url,
+            data: form.serialize(), // serializes the form's elements.
+            success: function(data)
+            {
+                alert(data); // show response from the php script.
+            }
+          });
+      });
+      
+      function addTopic() {
+        console.log("adding topic")
+        hiddenTopicsInput.value += `${topicsInput.value}`
+        topicsDisplay.innerHTML = `Topics: ${hiddenTopicsInput.value}`
+        topicsInput.value = ""
+        
+      }
+
+      function resetTopics() {
+        console.log("resetting topics")
+        topicsDisplay.innerHTML = 'Topics:'
+        numberOfTopics.innerHTML = `Number of Topics: 0`
+      }
+
+      function updateRunStats() {
+        let topicLength = hiddenTopicsInput.value.split(" ").length
+        let monthLength = new Date(toDate.value).getMonth() - new Date(fromDate.value).getMonth()
+        let estimatedTimeValue = 8 * Math.abs(topicLength) * Math.abs(monthLength)
+        monthLength = monthLength > 0 ? monthLength : "Invalid period"
+        numberOfTopics.innerHTML = `Number of Topics: ${topicLength}`
+        numberOfMonth.innerHTML = `Number of Months: ${monthLength}`
+        estimatedTime.innerHTML = `Estimated Time: ${estimatedTimeValue} seconds`
+      }
+
+      function validateForm() {
+        let topicLength = hiddenTopicsInput.value.split(" ").length
+        let monthLength = new Date(toDate.value).getMonth() - new Date(fromDate.value).getMonth()
+        if (topicLength < 1 || hiddenTopicsInput.value == "") {
+          alert("Please enter 1 or more topics");
+          return false;
+        }
+        if (monthLength < 1) {
+          alert("Month length must be 1 or more");
+          return false;
+        }
+      }
+
+    </script>
+  </body>
+</html>
