@@ -256,9 +256,7 @@ testList6 = createSentimentList("Tencent",1,2020,1,2021,testList5,pages=3)
 
 def chainSentimentList(topicLists,startMonth,startYear,endMonth,endYear,pages=5):
     output = []
-    topicString = ""
-    for topic in topicLists:
-        topicString += topic
+    topicString = '+'.join(topicLists)
     dirName = f"{startMonth}_{startYear}-{endMonth}_{endYear}_{topicString}"
     if not os.path.exists(f"outputs/{dirName}"):
         os.mkdir(f"outputs/{dirName}")
