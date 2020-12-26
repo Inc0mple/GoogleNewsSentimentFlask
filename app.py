@@ -11,31 +11,14 @@ import sys
 import io
 from contextlib import redirect_stdout
 from time import sleep
-app = flask.Flask(__name__)
+
 from sentimentApp.sentiment import chainSentimentList
-
-'''
-socketio = SocketIO(app)                                                        
-thread = None                                                                   
-
-
-def background_thread():                                                        
-    while True:                                                                 
-        socketio.emit('message', f"Message:{'ping'}")                        
-        sleep(5)       
-
-@socketio.on('connect')                                                         
-def connect():                                                                  
-    global thread                                                               
-    if thread is None:                                                          
-        thread = socketio.start_background_task(target=background_thread)   
-'''
+app = flask.Flask(__name__)
 
 @app.route("/")
 def home():
     print(Path.cwd())
     return render_template("home.html")
-
 zipFile_data = None
 graph_data = None
 
@@ -73,7 +56,7 @@ def analyse():
         graph_data.write(fo.read())
     # (after writing, cursor will be at last byte, so move it to start)
     graph_data.seek(0)
-    shutil.rmtree(f"{Path.cwd()}/outputs/{data}")
+    # shutil.rmtree(f"{Path.cwd()}/outputs/{data}")
     print(f"removed {graph_file_path}")
 
     # Handle Zip File
@@ -84,40 +67,15 @@ def analyse():
         zipFile_data.write(fo.read())
     # (after writing, cursor will be at last byte, so move it to start)
     zipFile_data.seek(0)
-    os.remove(zip_file_path)
+    # os.remove(zip_file_path)
     print(f"removed {zip_file_path}")
 
     return f'{data}'
-
-
 
 @app.route("/output")
 def output():
     data = request.args.get('data')
     print("received: ", request.args.get('data'))
-    """
-    # Handle Graph
-    graph_file_path = f"{Path.cwd()}\outputs\{data}\outputGraph.jpg"
-    global graph_data
-    graph_data = io.BytesIO()
-    with open(graph_file_path, 'rb') as fo:
-        graph_data.write(fo.read())
-    # (after writing, cursor will be at last byte, so move it to start)
-    graph_data.seek(0)
-    shutil.rmtree(f"{Path.cwd()}\outputs\{data}")
-    print(f"removed {graph_file_path}")
-
-    # Handle Zip File
-    zip_file_path = f"{Path.cwd()}\zips\{data}.zip"
-    global zipFile_data
-    zipFile_data = io.BytesIO()
-    with open(zip_file_path, 'rb') as fo:
-        zipFile_data.write(fo.read())
-    # (after writing, cursor will be at last byte, so move it to start)
-    zipFile_data.seek(0)
-    os.remove(zip_file_path)
-    print(f"removed {zip_file_path}")
-    """
     return send_file(graph_data,mimetype="image/jpeg")
 
 @app.route("/download")
@@ -125,29 +83,38 @@ def download():
     print(zipFile_data)
     data = request.args.get('data')
     file_path = f"{Path.cwd()}\zips\{data}.zip"
-    '''
-    data = request.args.get('data')
-    return_data = io.BytesIO()
-    with open(file_path, 'rb') as fo:
-        return_data.write(fo.read())
-    # (after writing, cursor will be at last byte, so move it to start)
-    return_data.seek(0)
-    os.remove(file_path)
-    print(f"removed {file_path}")
-    '''
+
     return send_file(zipFile_data,mimetype="application/zip",as_attachment=True,attachment_filename=f"{data}.zip")
 
 
-@app.route("/contact/")
-def contact():
-    return render_template("contact.html")
 
-@app.route("/hello/")
-@app.route("/hello/<name>")
-def hello_there(name = None):
-    return render_template(
-        "hello_there.html",
-        name=name,
-        date=datetime.now()
-    )
+'''
+# https://pythonise.com/series/learning-flask/flask-rq-task-queue
 
+def background_task(n):
+
+    """ Function that returns len(n) and simulates a delay """
+
+    delay = 2
+
+    print("Task running")
+    print(f"Simulating a {delay} second delay")
+
+    sleep(delay)
+
+    print(len(n))
+    print("Task complete")
+
+    return len(n)
+
+@app.route("/task")
+def index():
+
+    if request.args.get("n"):
+
+        job = q.enqueue(background_task, request.args.get("n"))
+
+        return f"Task ({job.id}) added to queue at {job.enqueued_at}"
+
+    return "No value for count provided"
+'''
