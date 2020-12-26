@@ -257,6 +257,10 @@ def chainSentimentList(topicLists,startMonth,startYear,endMonth,endYear,pages=5)
     output = []
     topicString = '+'.join(topicLists)
     dirName = f"{startMonth}_{startYear}-{endMonth}_{endYear}_{topicString}"
+    if not os.path.exists(f"outputs"):
+        os.mkdir(f"outputs")
+    if not os.path.exists(f"zips"):
+        os.mkdir(f"zips")
     if not os.path.exists(f"outputs/{dirName}"):
         os.mkdir(f"outputs/{dirName}")
         os.mkdir(f"outputs/{dirName}/batches")

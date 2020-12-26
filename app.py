@@ -41,7 +41,7 @@ graph_data = None
 
 @app.route("/analyse/",methods=['GET', 'POST'])
 def analyse():
-    print(request.form)
+    #print(request.form)
     fromDate = request.form['fromMonthInput']
     fromMonth = int(fromDate.split('-')[1])
     fromYear = int(fromDate.split('-')[0])
