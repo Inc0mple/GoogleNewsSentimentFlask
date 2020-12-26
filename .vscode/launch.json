@@ -11,7 +11,7 @@
             "module": "flask",
             "justMyCode": false,
             "env": {
-                "FLASK_APP": "hello_app.webapp",
+                "FLASK_APP": "app",
                 "FLASK_ENV": "development",
                 "FLASK_DEBUG": "0"
             },
@@ -20,6 +20,21 @@
                 "--no-debugger"
             ],
             "jinja": true
+        },
+        {
+            "name": "Docker: Python - Flask",
+            "type": "docker",
+            "request": "launch",
+            "preLaunchTask": "docker-run: debug",
+            "python": {
+                "pathMappings": [
+                    {
+                        "localRoot": "${workspaceFolder}",
+                        "remoteRoot": "/app"
+                    }
+                ],
+                "projectType": "flask"
+            }
         }
     ]
 }

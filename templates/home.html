@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+  <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://cdn.socket.io/socket.io-3.0.1.min.js"></script>
+    <script type="text/javascript" charset="utf-8">
+    /*
+      var socket = io()
+      socket.on('connect', function() {
+        console.log('connected');
+      });
+      socket.on('message', function(data) {
+        console.log(data);
+      });
+      */
+    </script>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>GoogleNews Sentiment Analysis</title>
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='sentiment.css')}}" />
+  </head>
+  <body>
+    <!--[if lt IE 7]>
+      <p class="browsehappy">
+        You are using an <strong>outdated</strong> browser. Please
+        <a href="#">upgrade your browser</a> to improve your experience.
+      </p>
+    <![endif]-->
+    <div id="app" onload="updateRunStats()">
+      <div id="mainTitle">GoogleNews Sentiment Analysis with Vader</div>
+      <div id="container">
+        <div id="inputCell" class="cell">
+          <div id="inputTitle">Input</div>
+          <form action="/analyse/" id="inputForm" method="post" onchange="updateRunStats()">
+            <div id="fromLine">
+              <label for="fromMonthInput">From:</label>
+              <input type="month" id="fromMonthInput" name="fromMonthInput"
+              min="2011-01" value="2020-11">
+            </div>
+            <div id="toLine">
+              <label for="toMonthInput">To:</label>
+              <input type="month" id="toMonthInput" name="toMonthInput"
+              min="2011-01" value="2020-12">
+            </div>
+            <div>
+              <label for="topicsInput">Add News Topic</label>
+              <input type="text" placeholder="eg Trump" name="topicsInput" id="topicsInput">
+              <button id="addTopicButton" type="button" onclick="addTopic();updateRunStats()">Add</button>
+            </div>
+            <input type="text" name="hiddenTopicsInput" id="hiddenTopicsInput" value="">
+            <div id="topicsDisplay">
+              Topics to be analysed:
+            </div>
+            <input type="submit">
+            <input type="reset" onclick="resetTopics()">
+          </form>
+        </div>
+        <div id="statsCell" class="cell">
+          <div id="statsTitle">Stats</div>
+          <div id="runStatsContainer">
+            <p id="numberOfTopics">Number of Topics: 0</p>
+            <p id="numberOfMonth">Number of Months: 1</p>
+            <p id="estimatedTime">Estimated Time: 0 seconds</p>
+            <p id="statusDisplay">Status: Awaiting submission</p>
+          </div>
+          <div id="downloadContainer">
+            <a id="downloadLink" href=''><button id="downloadButton" type='button' disabled>Download Data</button></a>
+          </div>
+            
+        </div>
+        <div id="logCell" class="cell">
+          <div id="logTitle">Server Logs</div>
+          <div id="logContainer">
+            Under Construction
+          </div>
+        </div>
+        <div id="graphCell" class="cell">
+          <div id="graphTitle">Ouput Graph</div>
+          <div id="loader"></div>
+          <img id="graphImg" src="" />
+        </div>
+          
+      </div>
+    </div>
+    <script>
+      let addTopicButton = document.getElementById('addTopicButton');
+      let hiddenTopicsInput = document.getElementById('hiddenTopicsInput');
+      let topicsInput = document.getElementById('topicsInput');
+      let topicsDisplay = document.getElementById('topicsDisplay');
+      let statusDisplay = document.getElementById('statusDisplay');
+      let numberOfTopics = document.getElementById('numberOfTopics');
+      let numberOfMonth = document.getElementById('numberOfMonth');
+      let estimatedTime = document.getElementById('estimatedTime');
+      
+      let fromDate = document.getElementById('fromMonthInput');
+      let toDate = document.getElementById('toMonthInput');
+      let downloadContainer = document.getElementById('downloadContainer');
+      let downloadLink = document.getElementById('downloadLink');
+      let downloadButton = document.getElementById('downloadButton');
+
+      let graphImg = document.getElementById('graphImg');
+      
+      $("#inputForm").submit(function(e) {
+        e.preventDefault(); // avoid to execute the actual submit of the form.
+        let topicLength = hiddenTopicsInput.value.split("><").length
+        let monthLength = monthDiff(new Date(fromDate.value),new Date(toDate.value))
+        // Validate form
+        if (topicLength < 1 || hiddenTopicsInput.value == "") {
+          alert("Please enter 1 or more topics");
+          return false;
+        }
+        if (monthLength < 1) {
+          alert("Month length must be 1 or more");
+          return false;
+        }
+        statusDisplay.innerHTML = "Status: Processing"
+        loader.style.display = "flex";
+
+        var form = $(this);
+        var url = form.attr('action');
+        let fd = new FormData(document.getElementById("inputForm"));
+
+        $.ajax({
+          type: "POST",
+          url: url,
+          data: fd,
+          cache: false,
+          processData: false,
+          contentType: false,
+          success: function(data)
+          {
+            console.log("received: " + data)
+            data = encodeURIComponent(data)
+            graphImg.src=`./output?data=${data}`
+            console.log(window.location.pathname)
+            statusDisplay.innerHTML = "Status: Done!"
+            downloadLink.href = `./download?data=${data}`
+            downloadButton.removeAttribute("disabled")
+            loader.style.display = "none";
+            //alert(data); // show response from the script.
+          }
+        });
+      });
+      //https://www.w3schools.com/howto/howto_js_trigger_button_enter.asp
+      topicsInput.addEventListener("keydown", function(event) {
+        // Number 13 is the "Enter" key on the keyboard
+        if (event.keyCode === 13) {
+          // Cancel the default action, if needed
+          event.preventDefault();
+          // Trigger the button element with a click
+          document.getElementById("addTopicButton").click();
+        }
+      });
+
+      function addTopic() {
+        if (topicsInput.value == "") {
+          alert("Please enter a valid google search term")
+        }
+        else {
+          console.log("adding topic")
+          hiddenTopicsInput.value += `<${topicsInput.value}>`
+          console.log(hiddenTopicsInput.value)
+          topicsDisplay.textContent = `Topics: ${hiddenTopicsInput.value}`
+          topicsInput.value = ""
+        }
+      
+      }
+
+      function resetTopics() {
+        console.log("resetting topics")
+        topicsDisplay.innerHTML = 'Topics:'
+        numberOfTopics.innerHTML = `Number of Topics: 0`
+      }
+
+      //https://stackoverflow.com/questions/2536379/difference-in-months-between-two-dates-in-javascript
+      function monthDiff(d1, d2) {
+        var months;
+        months = (d2.getFullYear() - d1.getFullYear()) * 12;
+        months -= d1.getMonth();
+        months += d2.getMonth();
+        return months <= 0 ? 0 : months;
+      }
+
+      function updateRunStats() {
+        const regex = RegExp("(?<=\<).+?(?=\>)",'g')
+        let matchIter = hiddenTopicsInput.value.matchAll(regex)
+        let topicLength = 0
+        for (match of matchIter) {
+          topicLength += 1
+        }
+        console.log(topicLength)
+        //let topicLength = matchArray.length
+        
+        let monthLength = monthDiff(new Date(fromDate.value),new Date(toDate.value))
+        let estimatedTimeValue = 15 * Math.abs(topicLength) * Math.abs(monthLength)
+        monthLength = monthLength > 0 ? monthLength : "Invalid period"
+        numberOfTopics.innerHTML = `Number of Topics: ${topicLength}`
+        numberOfMonth.innerHTML = `Number of Months: ${monthLength}`
+        estimatedTime.innerHTML = `Estimated Time: ${estimatedTimeValue} seconds`
+      }
+
+      function validateForm() {
+        let topicLength = hiddenTopicsInput.value.split("><").length
+        let monthLength = monthDiff(new Date(fromDate.value),new Date(toDate.value))
+        if (topicLength < 1 || hiddenTopicsInput.value == "") {
+          alert("Please enter 1 or more topics");
+          return false;
+        }
+        if (monthLength < 1) {
+          alert("Month length must be 1 or more");
+          return false;
+        }
+      }
+
+    </script>
+  </body>
+</html>

@@ -1,4 +1,4 @@
-#!c:\users\bryan\onedrive\desktop\projects\python\flaskfirebasesentimentanalysis\env\scripts\python.exe
+#!D:\ProjectsLocal\GoogleNewsSentimentFlask\env\Scripts\python.exe
 # EASY-INSTALL-ENTRY-SCRIPT: 'nltk==3.5','console_scripts','nltk'
 __requires__ = 'nltk==3.5'
 import re

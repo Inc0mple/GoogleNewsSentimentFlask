@@ -5,7 +5,6 @@ from shutil import make_archive
 import pandas as pd
 import matplotlib.pyplot as plt
 #import matplotlib.colors as mcolors
-import newspaper
 import datetime
 import sys
 import os
