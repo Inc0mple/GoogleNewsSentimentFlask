@@ -30,20 +30,20 @@ Webapp Screenshot for Coronavirus
 ![Webapp Screenshot for Coronavirus](WebappScreenshot.JPG)
 
 Coronavirus Graph
-![Coronavirus Graph](outputs\11_2019-1_2021_Coronavirus\outputGraph.jpg)
+![Coronavirus Graph](outputGraphCorona.jpg)
 
 ### AMD vs Intel vs Nvidia from Jan 2020 - Dec 2020
 
 AMD Intel Nvidia Graph
-![AMD Intel Nvidia Graph](outputs\1_2020-1_2021_Intel+AMD+Nvidia\outputGraph.jpg)
+![AMD Intel Nvidia Graph](outputGraphAMDIntel.jpg)
 
 Below is a small sample of the batch data used for calulating the average sentiment of the topic 'AMD' on November 2020 (Last column is used for caluating mean, with 0 values ignored in its computation)
 ![AMD Batch Data](SampleAMDBatchData.JPG)
 
 ### Biden vs Trump Jan 2018 - Dec 2020
 
-![Biden Trump Graph](outputs\1_2018-1_2021_Biden+Trump\outputGraph.jpg)
+![Biden Trump Graph](outputGraphBidenTrump.jpg)
 
 ## Future Plans
 
-The hope is to deploy an online scalable version of this application background processes, instead of being limited to running it locally.
+I plan to incorporate socket.io and Redis Queue in the future to address the need for a background worker process with the hope of deploying an online scalable version instead of being limited to running it locally.
