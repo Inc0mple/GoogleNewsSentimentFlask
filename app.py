@@ -66,18 +66,18 @@ def analyse():
     print(f"sending {data} to client")
 
     # Handle Graph
-    graph_file_path = f"{Path.cwd()}\outputs\{data}\outputGraph.jpg"
+    graph_file_path = f"{Path.cwd()}/outputs/{data}/outputGraph.jpg"
     global graph_data
     graph_data = io.BytesIO()
     with open(graph_file_path, 'rb') as fo:
         graph_data.write(fo.read())
     # (after writing, cursor will be at last byte, so move it to start)
     graph_data.seek(0)
-    shutil.rmtree(f"{Path.cwd()}\outputs\{data}")
+    shutil.rmtree(f"{Path.cwd()}/outputs/{data}")
     print(f"removed {graph_file_path}")
 
     # Handle Zip File
-    zip_file_path = f"{Path.cwd()}\zips\{data}.zip"
+    zip_file_path = f"{Path.cwd()}/zips/{data}.zip"
     global zipFile_data
     zipFile_data = io.BytesIO()
     with open(zip_file_path, 'rb') as fo:
